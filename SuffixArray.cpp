@@ -67,7 +67,7 @@ SuffixArray::~SuffixArray()
     close(classesOldFile);
     close(countFile);
 
-
+    std::remove(suffixArrayFileName.data());
     std::remove(halfArrayFileName.data());
     std::remove(classesOldFileName.data());
     std::remove(classesNewFileName.data());
