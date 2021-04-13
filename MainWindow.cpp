@@ -24,6 +24,7 @@ void MainWindow::inputChanged()
 {
     std::string input = ui->lineEdit->text().toStdString();
     ui->textBrowser->setText("");
+
     version++;
     if (!input.empty()) {
         worker.setInput(std::optional<std::string>(input), version);
@@ -33,8 +34,10 @@ void MainWindow::inputChanged()
 void MainWindow::outputChanged()
 {
     Result result = worker.getOuput();
+
     if (version != result.version) {
         return;
     }
+
     ui->textBrowser->append(QString::fromStdString(result.word));
 }

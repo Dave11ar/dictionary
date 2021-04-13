@@ -27,7 +27,6 @@ class DictionaryWorker : public QObject
     Q_OBJECT
 public:
     void setInput(std::optional<std::string> value, uint64_t version);
-    Q_INVOKABLE void notify();
     Result getOuput();
 
     DictionaryWorker(std::string pathToDictionary);

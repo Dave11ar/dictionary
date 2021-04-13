@@ -10,18 +10,10 @@ void DictionaryWorker::setInput(std::optional<std::string> value, uint64_t versi
     inputChanged.notify_all();
 }
 
-void DictionaryWorker::notify()
-{
-    {
-        std::lock_guard lg(mutex);
-        notified = false;
-    }
-    emit ready();
-}
-
 Result DictionaryWorker::getOuput()
 {
     std::lock_guard lg(mutex);
+    notified = false;
     return output;
 }
 
@@ -46,7 +38,7 @@ void DictionaryWorker::storeResult(Result &&result)
     output = std::move(result);
 
     if (!notified) {
-        QMetaObject::invokeMethod(this, "notify");
+        emit ready();
         notified = true;
     }
 }
@@ -113,20 +105,14 @@ void DictionaryWorker::threadProcces()
             }
             right_pos = left;
 
-            uint version;
-            {
-                std::lock_guard lg(mutex);
-                version = inputVersion;
-            }
 
             for (array_t index = left_pos; index <= right_pos; index++) {
-                while (notified) {}
-
                 if (inputVersion != lastInputVersion) {
                     break;
                 }
+                while (notified) {}
 
-                storeResult(Result(suffixArray.getString(index), version));
+                storeResult(Result(suffixArray.getString(index), lastInputVersion));
             }
         }
     }
