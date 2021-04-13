@@ -5,7 +5,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , worker("words.txt")
+    , worker(".." + fileSeparator + "Data" + fileSeparator + "words.txt")
 {
     ui->setupUi(this);
 

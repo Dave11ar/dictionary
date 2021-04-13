@@ -34,6 +34,8 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES += \
-    Files/suffixArray.bin \
-    Files/words.txt
+DESTDIR = $$PWD/Build
+OBJECTS_DIR = $$PWD/Build
+MOC_DIR = $$PWD/Build
+RCC_DIR = $$PWD/Build
+UI_DIR = $$PWD/Build

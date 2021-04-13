@@ -14,6 +14,21 @@
 #include <sys/mman.h>
 #include <stdlib.h>
 
+
+const char lineSeparator =
+            #ifdef _WIN32
+                '\r\n';
+            #else
+                '\n';
+            #endif
+
+const std::string fileSeparator =
+            #ifdef _WIN32
+                "\\";
+            #else
+                "/";
+            #endif
+
 void *mmap(void *addr, size_t len, int prot, int flag, int filedes, off_t off);
 int munmap(void *addr, size_t length);
 
@@ -21,20 +36,6 @@ typedef uint64_t array_t;
 
 class SuffixArray
 {
-    static const char lineSeparator =
-                #ifdef _WIN32
-                    '\r\n';
-                #else
-                    '\n';
-                #endif
-
-    static const char fileSeparator =
-                #ifdef _WIN32
-                    '\\';
-                #else
-                    '/';
-                #endif
-
     static constexpr array_t alphabet = (1 << (8 * sizeof(char) + 1));
 public:
     array_t dictionaryLength;

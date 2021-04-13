@@ -1,9 +1,8 @@
-﻿
-#include "SuffixArray.h"
+﻿#include "SuffixArray.h"
 
 SuffixArray::SuffixArray(std::string dictionaryFileName)
     : dictionaryFileName(dictionaryFileName),
-      suffixArrayFileName("suffixArray.txt"),
+      suffixArrayFileName(".." + fileSeparator + "Data" + fileSeparator + "suffixArray.txt"),
       halfArrayFileName("halfArray.txt"),
       classesOldFileName("classesOld.txt"),
       classesNewFileName("classesNew.txt"),
@@ -133,6 +132,7 @@ void SuffixArray::createFiles(bool haveArray)
     dictionaryLength = _dictionary.tellg();
     dictionaryLength++;
     _dictionary.close();
+
     if (!haveArray) {
         std::ofstream _suffixArray;
         std::ofstream _halfArray;
