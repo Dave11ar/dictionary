@@ -1,35 +1,27 @@
-﻿#include "SuffixArray.h"
+﻿
+#include "SuffixArray.h"
 
 SuffixArray::SuffixArray(std::string dictionaryFileName)
     : dictionaryFileName(dictionaryFileName),
-      suffixArrayFileName("suffixArray.bin"),
-      halfArrayFileName("halfArray.bin"),
-      classesOldFileName("classesOld.bin"),
-      classesNewFileName("classesNew.bin"),
-      countFileName("count.bin")
+      suffixArrayFileName("suffixArray.txt"),
+      halfArrayFileName("halfArray.txt"),
+      classesOldFileName("classesOld.txt"),
+      classesNewFileName("classesNew.txt"),
+      countFileName("count.txt")
 {
-    createFiles();
-
-    if ((dictionaryFile = open(dictionaryFileName.data(), O_RDONLY)) == -1 ||
-        (suffixArrayFile = open(suffixArrayFileName.data(), O_RDWR)) == -1  ||
-        (halfArrayFile = open(halfArrayFileName.data(), O_RDWR)) == -1         ||
-        (classesOldFile = open(classesOldFileName.data(), O_RDWR)) == -1   ||
-        (classesNewFile = open(classesNewFileName.data(), O_RDWR)) == -1   ||
-        (countFile = open(countFileName.data(), O_RDWR)) == -1)  {
-        qDebug() << "Can not open files";
-        exit(1);
+    bool good;
+    if (FILE *file = fopen(suffixArrayFileName.data(), "r")) {
+        fclose(file);
+        good = true;
+    } else {
+        good = false;
     }
 
+    createFiles(good);
 
-    dictionary = (char*)mmap(NULL, dictionaryLength * sizeof(char), PROT_READ, MAP_PRIVATE, dictionaryFile, 0);
-    suffixArray = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, suffixArrayFile, 0);
-    halfArray = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, halfArrayFile, 0);
-    classesOld = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, classesOldFile, 0);
-    classesNew = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, classesNewFile, 0);
-    count = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, countFile, 0);
-
-
-    buildSuffixArray();
+    if (!good) {
+        buildSuffixArray();
+    }
 }
 
 int32_t SuffixArray::check(array_t pos, std::string &str)
@@ -67,7 +59,7 @@ SuffixArray::~SuffixArray()
     close(classesOldFile);
     close(countFile);
 
-    std::remove(suffixArrayFileName.data());
+
     std::remove(halfArrayFileName.data());
     std::remove(classesOldFileName.data());
     std::remove(classesNewFileName.data());
@@ -134,43 +126,69 @@ std::string SuffixArray::getString(array_t pos)
     return result;
 }
 
-void SuffixArray::createFiles()
+void SuffixArray::createFiles(bool haveArray)
 {
     std::ifstream _dictionary(dictionaryFileName);
-    std::ofstream _suffixArray;
-    std::ofstream _halfArray;
-    std::ofstream _classesOld;
-    std::ofstream _classesNew;
-    std::ofstream _count;
-
-    _suffixArray.open(suffixArrayFileName, std::ios::binary | std::ios::out);
-    _halfArray.open(halfArrayFileName.data(), std::ios::binary | std::ios::out);
-    _classesOld.open(classesOldFileName.data(), std::ios::binary | std::ios::out);
-    _classesNew.open(classesNewFileName.data(), std::ios::binary | std::ios::out);
-    _count.open(countFileName.data(), std::ios::binary | std::ios::out);
-
     _dictionary.seekg(0, std::ios::end);
     dictionaryLength = _dictionary.tellg();
     dictionaryLength++;
-
-    _suffixArray.seekp(dictionaryLength * sizeof(array_t));
-    _halfArray.seekp(dictionaryLength * sizeof(array_t));
-    _classesOld.seekp(dictionaryLength * sizeof(array_t));
-    _classesNew.seekp(dictionaryLength * sizeof(array_t));
-    _count.seekp(dictionaryLength * sizeof(array_t));
-
-    _suffixArray << '\0';
-    _halfArray << '\0';
-    _classesOld << '\0';
-    _classesNew << '\0';
-    _count << '\0';
-
     _dictionary.close();
-    _suffixArray.close();
-    _halfArray.close();
-    _classesOld.close();
-    _classesNew.close();
-    _count.close();
+    if (!haveArray) {
+        std::ofstream _suffixArray;
+        std::ofstream _halfArray;
+        std::ofstream _classesOld;
+        std::ofstream _classesNew;
+        std::ofstream _count;
+
+        _suffixArray.open(suffixArrayFileName, std::ios::binary | std::ios::out);
+        _halfArray.open(halfArrayFileName.data(), std::ios::binary | std::ios::out);
+        _classesOld.open(classesOldFileName.data(), std::ios::binary | std::ios::out);
+        _classesNew.open(classesNewFileName.data(), std::ios::binary | std::ios::out);
+        _count.open(countFileName.data(), std::ios::binary | std::ios::out);
+
+
+        _suffixArray.seekp(dictionaryLength * sizeof(array_t));
+        _halfArray.seekp(dictionaryLength * sizeof(array_t));
+        _classesOld.seekp(dictionaryLength * sizeof(array_t));
+        _classesNew.seekp(dictionaryLength * sizeof(array_t));
+        _count.seekp(dictionaryLength * sizeof(array_t));
+
+        _suffixArray << '\0';
+        _halfArray << '\0';
+        _classesOld << '\0';
+        _classesNew << '\0';
+        _count << '\0';
+
+        _suffixArray.close();
+        _halfArray.close();
+        _classesOld.close();
+        _classesNew.close();
+        _count.close();
+
+        if ((suffixArrayFile = open(suffixArrayFileName.data(), O_RDWR)) == -1 ||
+            (halfArrayFile = open(halfArrayFileName.data(), O_RDWR)) == -1     ||
+            (classesOldFile = open(classesOldFileName.data(), O_RDWR)) == -1   ||
+            (classesNewFile = open(classesNewFileName.data(), O_RDWR)) == -1   ||
+            (countFile = open(countFileName.data(), O_RDWR)) == -1)  {
+            qDebug() << "Can not open files";
+        }
+
+        suffixArray = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_SHARED, suffixArrayFile, 0);
+        halfArray = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, halfArrayFile, 0);
+        classesOld = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, classesOldFile, 0);
+        classesNew = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, classesNewFile, 0);
+        count = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ | PROT_WRITE, MAP_PRIVATE, countFile, 0);
+    } else {
+        if ((suffixArrayFile = open(suffixArrayFileName.data(), O_RDONLY)) == -1) {
+            qDebug() << "Can not open files";
+        }
+        suffixArray = (array_t*)mmap(NULL, dictionaryLength * sizeof(array_t), PROT_READ, MAP_PRIVATE, suffixArrayFile, 0);
+    }
+
+    if ((dictionaryFile = open(dictionaryFileName.data(), O_RDONLY)) == -1) {
+         qDebug() << "Can not open files";
+    }
+    dictionary = (char*)mmap(NULL, dictionaryLength * sizeof(char), PROT_READ, MAP_PRIVATE, dictionaryFile, 0);
 }
 
 void SuffixArray::buildSuffixArray()

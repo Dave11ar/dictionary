@@ -49,7 +49,7 @@ private:
     template <typename T = array_t, bool character = false>
     T getFromDictionary(array_t index);
     void set(array_t *file, array_t index, array_t value);
-    void createFiles();
+    void createFiles(bool haveArray);
     void buildSuffixArray();
 
 
@@ -73,8 +73,6 @@ private:
     std::string classesOldFileName;
     std::string classesNewFileName;
     std::string countFileName;
-
-    static const std::string prefixForFiles;
 };
 
 
