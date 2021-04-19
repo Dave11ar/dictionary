@@ -1,19 +1,18 @@
 #ifndef SUFFIXARRAY_H
 #define SUFFIXARRAY_H
 
+#include <QString>
+#include <QDebug>
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <cstdio>
-#include <QString>
-#include <QDebug>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stdlib.h>
-
 
 const char lineSeparator =
             #ifdef _WIN32

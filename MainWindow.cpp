@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , worker(".." + fileSeparator + "Data" + fileSeparator + "words.txt")
+    , words()
+    , version(1)
 {
     ui->setupUi(this);
 
@@ -22,10 +24,11 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
 void MainWindow::inputChanged()
 {
-    std::string input = ui->lineEdit->text().toStdString();
-    ui->textBrowser->setText("");
-
     version++;
+    words.clear();
+    ui->textBrowser->setText("");
+    std::string input = ui->lineEdit->text().toStdString();
+
     if (!input.empty()) {
         worker.setInput(std::optional<std::string>(input), version);
     }
@@ -34,10 +37,10 @@ void MainWindow::inputChanged()
 void MainWindow::outputChanged()
 {
     Result result = worker.getOuput();
-
-    if (version != result.version) {
+    if (version != result.version || words.count(result.word) != 0) {
         return;
     }
 
+    words.insert(result.word);
     ui->textBrowser->append(QString::fromStdString(result.word));
 }

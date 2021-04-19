@@ -2,11 +2,11 @@
 #define DICTIONARYWORKER_H
 
 #include <SuffixArray.h>
+#include <QObject>
 #include <thread>
 #include <condition_variable>
 #include <optional>
 #include <string>
-#include <QObject>
 
 class MainWindow;
 
@@ -33,20 +33,25 @@ public:
     ~DictionaryWorker();
 signals:
     void ready();
+
 private:
     void storeResult(Result &&result);
     void threadProcces();
 
+    std::mutex inputMutex;
 
-    std::mutex mutex;
     std::atomic<uint64_t> inputVersion;
-    std::condition_variable inputChanged;
-    std::optional<std::string> input;
-    std::thread workingThread;
-    bool notified = false;
+    std::atomic<bool> notified = false;
 
-    SuffixArray suffixArray;
+    std::condition_variable inputChanged;
+    std::condition_variable notifyChanged;
+
+    std::optional<std::string> input;
     Result output;
+
+    std::thread workingThread;
+    SuffixArray suffixArray;
+
     static constexpr uint64_t QUIT = 0;
 };
 

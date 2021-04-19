@@ -1,14 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <memory>
-#include <unordered_set>
+#include <DictionaryWorker.h>
 #include <QMainWindow>
 #include <QObject>
 #include <QLineEdit>
 #include <QTextBrowser>
-#include <DictionaryWorker.h>
 #include <QThread>
+#include <memory>
+#include <unordered_set>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,6 +30,7 @@ private slots:
 private:
     std::unique_ptr<Ui::MainWindow> ui;
     DictionaryWorker worker;
-    uint64_t version = 1;
+    std::unordered_set<std::string> words;
+    uint64_t version;
 };
 #endif // MAINWINDOW_H
